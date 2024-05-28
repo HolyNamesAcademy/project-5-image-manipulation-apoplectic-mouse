@@ -1,5 +1,7 @@
 import java.io.IOException;
-
+import java.util.ArrayList;
+import java.lang.Math;
+import java.util.Comparator;
 /**
  * Static utility class that is responsible for transforming the images.
  * Each function (or at least most functions) take in an Image and return
@@ -13,7 +15,8 @@ public class ImageManipulator {
      * @throws IOException
      */
     public static Img LoadImage(String path) throws IOException {
-        throw new UnsupportedOperationException();
+        Img picture = new Img(path);
+        return picture;
     }
 
     /**
@@ -23,8 +26,7 @@ public class ImageManipulator {
      * @throws IOException
      */
     public static void SaveImage(Img image, String path) throws IOException {
-        // Implement this method and remove the line below
-        throw new UnsupportedOperationException();
+        image.Save("png", path);
     }
 
     /**
@@ -35,8 +37,20 @@ public class ImageManipulator {
      * @return the image transformed to grayscale
      */
     public static Img ConvertToGrayScale(Img image) {
-        // Implement this method and remove the line below
-        throw new UnsupportedOperationException();
+        int avg;
+        RGB pixel = new RGB();
+        for(int x=0; x<image.GetWidth(); x++){
+            for(int y=0; y<image.GetHeight(); y++){
+             pixel = image.GetRGB(x, y);
+             avg = (pixel.GetBlue()+ pixel.GetGreen()+pixel.GetRed())/3;
+             pixel.SetBlue(avg);
+             pixel.SetRed(avg);
+             pixel.SetGreen(avg);
+             image.SetRGB(x, y, pixel);
+
+            }
+        }
+        return image;
     }
 
     /**
@@ -46,8 +60,21 @@ public class ImageManipulator {
      * @return image transformed to inverted image
      */
     public static Img InvertImage(Img image) {
-        // Implement this method and remove the line below
-        throw new UnsupportedOperationException();
+        int newred;
+        int newblue;
+        int newgreen;
+        RGB pixel = new RGB();
+        for(int x=0; x<image.GetWidth(); x++){
+            for(int y=0; y<image.GetHeight(); y++){
+                pixel = image.GetRGB(x, y);
+                pixel.SetRed(255-pixel.GetRed());
+                pixel.SetBlue(255-pixel.GetBlue());
+                pixel.SetGreen(255-pixel.GetGreen());
+                image.SetRGB(x, y, pixel);
+
+            }
+        }
+        return image;
     }
 
     /**
@@ -60,8 +87,25 @@ public class ImageManipulator {
      * @return image transformed to sepia
      */
     public static Img ConvertToSepia(Img image) {
-        // Implement this method and remove the line below
-        throw new UnsupportedOperationException();
+        int newred;
+        int newblue;
+        int newgreen;
+        RGB pixel = new RGB();
+        for(int x=0; x<image.GetWidth(); x++){
+            for(int y=0; y<image.GetHeight(); y++){
+                pixel = image.GetRGB(x, y);
+                newblue = (int)pixel.GetBlue();
+                newgreen = (int)pixel.GetGreen();
+                newred = (int)pixel.GetRed();
+                pixel.SetRed((int)(0.393*newred + 0.769*newgreen + 0.189*newblue));
+                pixel.SetGreen((int)(.349*newred + .686*newgreen + .168*newblue));
+                pixel.SetBlue((int)(.272*newred+.534*newgreen + .131*newgreen));
+                image.SetRGB(x, y, pixel);
+
+            }
+        }
+        return image;
+
     }
 
     /**
@@ -74,8 +118,41 @@ public class ImageManipulator {
      * @return black/white stylized form of image
      */
     public static Img ConvertToBW(Img image) {
-        // Implement this method and remove the line below
-        throw new UnsupportedOperationException();
+        ArrayList<Double> lums = new ArrayList<Double>();
+        int middleval;
+        double medianlum;
+        RGB pixel = new RGB();
+        double pixelLums;
+        double thisPixelLums;
+        for(int x = 0; x<image.GetWidth(); x++){
+            for(int y=0; y<image.GetHeight(); y++){
+               pixel = image.GetRGB(x, y);
+               pixelLums = Math.pow(0.299*Math.pow(pixel.GetRed(), 2)+0.587*Math.pow(pixel.GetGreen(), 2)+0.114*Math.pow(pixel.GetBlue(), 2), 0.5);
+               lums.add(pixelLums);
+            }
+        }
+        lums.sort(Comparator.naturalOrder());
+        middleval = (int)(0.5+lums.size()/2.0);
+        medianlum = lums.get(middleval);
+
+        for(int x = 0; x<image.GetWidth(); x++){
+            for(int y =0; y<image.GetHeight(); y++){
+             pixel = image.GetRGB(x, y);
+             thisPixelLums = Math.pow((0.299*Math.pow(pixel.GetRed(), 2)+0.587*Math.pow(pixel.GetGreen(), 2)+0.114*Math.pow(pixel.GetBlue(), 2)), 0.5);
+            if(thisPixelLums>=medianlum){
+                pixel.SetRed(255);
+                pixel.SetBlue(255);
+                pixel.SetGreen(255);
+            }
+            else{
+                pixel.SetRed(0);
+                pixel.SetBlue(0);
+                pixel.SetGreen(0);
+            }
+            image.SetRGB(x, y, pixel);
+            }
+        }
+return image;
     }
 
     /**
@@ -83,9 +160,17 @@ public class ImageManipulator {
      * @param image image to transform
      * @return image rotated 90 degrees clockwise
      */
+    //outofbounds exception. think im trying to apply to pixel that's not there
     public  static Img RotateImage(Img image) {
-        // Implement this method and remove the line below
-        throw new UnsupportedOperationException();
+        Img rotated = new Img(image.GetHeight(), image.GetWidth());
+        RGB pixel = new RGB();
+        for(int y = 0; y<image.GetHeight(); y++){
+            for(int x=0; x<image.GetWidth(); x++){
+                pixel = image.GetRGB(x, y);
+                rotated.SetRGB(image.GetHeight()-1-y, x, pixel);
+            }
+        }
+        return rotated;
     }
 
     /**
@@ -106,8 +191,26 @@ public class ImageManipulator {
      * @throws IOException
      */
     public static Img InstagramFilter(Img image) throws IOException {
-        // Implement this method and remove the line below
-        throw new UnsupportedOperationException();
+        Img halo = new Img("C:\\Users\\embin\\IdeaProjects\\project-5-image-manipulation-apoplectic-mouse\\resources\\halo.png");
+        Img decg = new Img("C:\\Users\\embin\\IdeaProjects\\project-5-image-manipulation-apoplectic-mouse\\resources\\decorative_grain.png");
+        RGB pixel = new RGB();
+        RGB haloGrainPixel = new RGB();
+        //strat: figure out how to call loadimage to be able to access halo and decg
+        //average out the three images w multiplication factors on halograinpixel
+        for(int x=0; x<image.GetWidth(); x++) {
+            for (int y = 0; y < image.GetHeight(); y++) {
+                pixel = image.GetRGB(x, y);
+                pixel.SetBlue((int) (pixel.GetBlue() / 1.5));
+                pixel.SetRed((int) (pixel.GetRed() * 1.2));
+                image.SetRGB(x, y, pixel);
+            }
+        }
+        for(int x=0; x<image.GetWidth(); x++){
+            for(int y=0; y<image.GetHeight(); y++){
+
+            }
+        }
+        return halo;
     }
 
     /**
@@ -119,8 +222,16 @@ public class ImageManipulator {
      * @return image with added hue
      */
     public static Img SetHue(Img image, int hue) {
-        // Implement this method and remove the line below
-        throw new UnsupportedOperationException();
+
+        for(int x = 0; x<image.GetWidth(); x++ ){
+            for(int y = 0; y< image.GetHeight(); y++){
+              RGB pixel=image.GetRGB(x, y);
+              HSL pixel1 = pixel.ConvertToHSL();
+              pixel1.SetHue(hue);
+              image.SetRGB(x, y, pixel1.GetRGB());
+            }
+        }
+        return image;
     }
 
     /**
@@ -132,8 +243,15 @@ public class ImageManipulator {
      * @return image with added hue
      */
     public static Img SetSaturation(Img image, double saturation) {
-        // Implement this method and remove the line below
-        throw new UnsupportedOperationException();
+        for(int x = 0; x<image.GetWidth(); x++ ){
+            for(int y = 0; y< image.GetHeight(); y++){
+                RGB pixel=image.GetRGB(x, y);
+                HSL pixel1 = pixel.ConvertToHSL();
+                pixel1.SetSaturation(saturation);
+                image.SetRGB(x, y, pixel1.GetRGB());
+            }
+        }
+        return image;
     }
 
     /**
@@ -145,7 +263,14 @@ public class ImageManipulator {
      * @return image with added hue
      */
     public static Img SetLightness(Img image, double lightness) {
-        // Implement this method and remove the line below
-        throw new UnsupportedOperationException();
+        for(int x = 0; x<image.GetWidth(); x++ ){
+            for(int y = 0; y< image.GetHeight(); y++){
+                RGB pixel=image.GetRGB(x, y);
+                HSL pixel1 = pixel.ConvertToHSL();
+                pixel1.SetLightness(lightness);
+                image.SetRGB(x, y, pixel1.GetRGB());
+            }
+        }
+        return image;
     }
 }
